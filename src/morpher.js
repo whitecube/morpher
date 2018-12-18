@@ -5,13 +5,11 @@ class Morpher {
         if(!this.path || this.path.tagName.toUpperCase() !== 'PATH') return console.warn('Morpherjs: provided DOM element should be a PATH node.')
         this.config = {...Morpher.defaults, ...config};
         this.steps = [];
-        this.start = undefined;
-        this.iterations = undefined;
-        this.iteration = undefined;
-        this.direction = undefined;
+        this.segments = undefined;
         this.isPlaying = false;
         this.isPaused = false;
         this.isDone = false;
+        this.reset();
         this.addStep(this.path.getAttribute('d'));
     }
 
@@ -71,6 +69,7 @@ class Morpher {
         let step = {};
         step.points = this.parseDirectionsString(d);
         this.steps.push(step);
+        this.segments = undefined;
         return this;
     }
 
@@ -94,7 +93,7 @@ class Morpher {
         this.isPlaying = true;
         this.isPaused = false;
         this.isDone = false;
-        this.draw(this.start);
+        this.frame(this.start);
     }
 
     /**
@@ -110,18 +109,102 @@ class Morpher {
     * Stop animation and reset it
     */
     stop() {
-        this.start = undefined;
+        this.reset();
         this.isPlaying = false;
         this.isPaused = false;
         this.isDone = false;
     }
 
     /**
+    * Set morpher state for given timestamp with current state
+    */
+    frame(time) {
+        let points;
+        if(this.config.duration && this.isPlaying && !this.isDone && this.steps.length > 1) {
+            if(points = this.update(time)) return this.draw(points);
+        }
+        this.isDone = true;
+        this.reset();
+        return this.isPlaying = false;
+
+    }
+
+    /**
+    * Set current state values and compute path if necessary;
+    */
+    update(time) {
+        if(!this.segments) this.segments = this.getSegments();
+        time = this.getProgress(time);
+        if(time === undefined) return;
+        return this.getSegmentProgressPoints(this.getSegmentProgress(time));
+    }
+
+    /**
     * Set the path's new "d" attribute and request a new frame if necessary
     */
-    draw(time) {
-        if(!this.isPlaying) return;
-        console.log(this);
+    draw(points) {
+        // this.path.setAttribute('d', path);
+        requestAnimationFrame(() => this.frame(Date.now()));
+    }
+
+    /**
+    * Unset all state variables
+    */
+    reset() {
+        this.start = undefined;
+        this.iteration = undefined;
+        this.segment = undefined;
+        this.isForward = undefined;
+    }
+
+    /**
+    * Get eased progress number (between 0 and 1)
+    */
+    getProgress(time) {
+        this.iteration = Math.floor((time - this.start) / this.config.duration);
+        if(this.config.iterations >= this.iteration) return;
+        this.isForward = this.config.alternate ? (this.iteration % 2 === 0) : true;
+        time = (time - this.start) % this.config.duration;
+        time = this.isForward ? (time / this.config.duration) : ((this.config.duration - time) / this.config.duration);
+        time = this.config.easing(time);
+        this.segment = Math.floor(time * this.segments.length);
+        return time;
+    }
+
+    /**
+    * Get progress in current step segment
+    */
+    getSegmentProgress(progress) {
+        return (progress - (this.segment / this.segments.length)) * this.segments.length;
+    }
+
+    /**
+    * Get instructions array with interpolated coordinates for the current step's progress
+    */
+    getSegmentProgressPoints(progress) {
+        console.log(this.segments[this.segment]);
+    }
+
+    /**
+    * Transform steps into prepared segments
+    */
+    getSegments() {
+        let segments = [];
+        for (var i = 0; i < this.steps.length - 1; i++) {
+            segments.push(this.getSegmentPointsForSteps(this.steps[i], this.steps[i + 1]));
+        }
+        return segments;
+    }
+
+    /**
+    * Create a segment array for given base and target steps
+    */
+    getSegmentPointsForSteps(from, to) {
+        let points = [];
+        for (var i = 0; i < from.points.length; i++) {
+            points.push(this.getSegmentPoint(from.points[i], to.points[i], from.points[i - 1], to.points[i - 1]));
+        }
+        return points;
     }
 
     /**
@@ -292,6 +375,147 @@ class Morpher {
             coords.rel.push(coords.abs[i] - instruction.start.abs[axis]);
         }
         return coords;
+    }
+
+    /**
+    * Get object with unified from & to instructions
+    */
+    getSegmentPoint(from, to, previousFrom, previousTo) {
+        let point = {};
+        point.type = this.getBestInstructionType(from.type, to.type);
+        point.from = this['parseTo' + point.type](from, previousFrom);
+        point.to = this['parseTo' + point.type](to, previousTo);
+        return point;
+    }
+
+    /**
+    * Decide which instruction type should be used when assemble the from and to instruction
+    */
+    getBestInstructionType(from, to) {
+        let f = from.toLowerCase(), t = to.toLowerCase();
+        if(f == t) return from.toUpperCase();
+        if((f == 'q' || t == 'q') && (f == 't' || t == 't')) return 'Q';
+        if(f == 'c' || t == 'c' || f == 's' || t == 's') return 'C';
+        if((f == 'l' || t == 'l') && ((f == 'v' || t == 'v') || (f == 'h' || t == 'h'))) return 'L';
+        return 'C';
+    }
+
+    /**
+    * Transform any instruction into arguments for a "M" instruction
+    */
+    parseToM(instruction) {
+        return [instruction.end.abs.x, instruction.end.abs.y];
+    }
+
+    /**
+    * Transform any instruction into arguments for a "Z" instruction
+    */
+    parseToZ(instruction) {
+        return;
+    }
+
+    /**
+    * Transform any instruction into arguments for a "L" instruction
+    */
+    parseToL(instruction) {
+        return [instruction.end.abs.x, instruction.end.abs.y];
+    }
+
+    /**
+    * Transform any instruction into arguments for a "H" instruction
+    */
+    parseToH(instruction) {
+        return [instruction.end.abs.x];
+    }
+
+    /**
+    * Transform any instruction into arguments for a "V" instruction
+    */
+    parseToV(instruction) {
+        return [instruction.end.abs.y];
+    }
+
+    /**
+    * Transform any instruction into arguments for a "C" instruction
+    */
+    parseToC(instruction, previous) {
+        // Can be of any instruction type 
+        switch(instruction.type.toLowerCase()) {
+            case 'c': return instruction.coordinates.abs; break;
+            case 's': 
+                return this.computeMissingFirstControlPoint(instruction, previous).concat(instruction.coordinates.abs);
+                break;
+            case 'q':
+                return [
+                    instruction.coordinates.abs[instruction.coordinates.abs.length - 4],
+                    instruction.coordinates.abs[instruction.coordinates.abs.length - 3],
+                    instruction.coordinates.abs[instruction.coordinates.abs.length - 4],
+                    instruction.coordinates.abs[instruction.coordinates.abs.length - 3],
+                    instruction.end.abs.x,
+                    instruction.end.abs.y
+                ];
+            case 't':
+                let missing = this.computeMissingFirstControlPoint(instruction, previous);
+                return missing.concat(missing).concat([instruction.end.abs.x,instruction.end.abs.y]);
+                break;
+        }
+        return [
+            instruction.start.abs.x,
+            instruction.start.abs.y,
+            instruction.end.abs.x,
+            instruction.end.abs.y,
+            instruction.end.abs.x,
+            instruction.end.abs.y
+        ];
+    }
+
+    /**
+    * Transform any instruction into arguments for a "S" instruction
+    */
+    parseToS(instruction) {
+        // Can only be of same type
+        return instruction.coordinates.abs;
+    }
+
+    /**
+    * Transform any instruction into arguments for a "Q" instruction
+    */
+    parseToQ(instruction, previous) {
+        if(instruction.type.toLowerCase() != 't') {
+            // Can only be of same type
+            return instruction.coordinates.abs;
+        }
+        return this.computeMissingFirstControlPoint(instruction, previous).concat([instruction.end.abs.x,instruction.end.abs.y]);
+    }
+
+    /**
+    * Transform any instruction into arguments for a "T" instruction
+    */
+    parseToT(instruction) {
+        // Can only be of same type
+        return instruction.coordinates.abs;
+    }
+
+    /**
+    * Transform any instruction inton arguments for an "A" instruction
+    */
+    parseToA(instruction) {
+        // Can only be of same type
+        return instruction.coordinates.abs;
+    }
+
+    /**
+    * Find a missing control point based on the pevious instruction
+    */
+    computeMissingFirstControlPoint(instruction, previous) {
+        let type = previous.type.toLowerCase();
+        if(type != 'c' && type != 's' && type != 'q') {
+            return [instruction.start.abs.x, instruction.start.abs.y];
+        }
+        return [
+            instruction.start.abs.x + (instruction.start.abs.x - previous.coordinates.abs[previous.coordinates.abs.length - 4]),
+            instruction.start.abs.y + (instruction.start.abs.y - previous.coordinates.abs[previous.coordinates.abs.length - 3])
+        ];
     }
 
 }
