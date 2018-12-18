@@ -3,6 +3,14 @@ class Morpher {
     constructor(element, config = {}) {
         this.svg = element;
         this.config = {...Morpher.defaults, ...config};
+        this.paths = [];
+        this.start = undefined;
+        this.iterations = undefined;
+        this.iteration = undefined;
+        this.direction = undefined;
+        this.isPlaying = false;
+        this.isPaused = false;
+        this.isDone = false;
     }
 
     /**
@@ -51,6 +59,37 @@ class Morpher {
     setEasing(callback) {
         this.config.easing = (typeof callback === 'function') ? callback : Morpher.defaults.easing;
         return this;
+    }
+
+    /**
+    * Launch animation
+    */
+    play() {
+        if(!this.start) this.start = Date.now();
+        if(this.isPaused) this.start = Date.now() - (this.isPaused - this.start);
+        this.isPlaying = true;
+        this.isPaused = false;
+        this.isDone = false;
+        this.draw();
+    }
+
+    /**
+    * Stop animation without resetting it
+    */
+    pause() {
+        this.isPlaying = false;
+        this.isPaused = Date.now();
+        this.isDone = false;
+    }
+
+    /**
+    * Stop animation and reset it
+    */
+    stop() {
+        this.start = undefined;
+        this.isPlaying = false;
+        this.isPaused = false;
+        this.isDone = false;
     }
 
 }
