@@ -8,25 +8,30 @@
 <body>
 
     <div style="background:#000000;">
-        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 855 585" style="enable-background:new 0 0 855 585;" xml:space="preserve" id="svg">
-        <path style="fill:#FFFFFF;" d="M819.5,474.9c0,0,20.5-26.8,9.9-35.4s-5.1-9.3,0-14.4s0-17.2-8-14.4s-13.9-8.7-8-17.2
+        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 855 585" style="enable-background:new 0 0 855 585;" xml:space="preserve">
+        <path id="leaf" style="fill:#FFFFFF;" d="M819.5,474.9c0,0,20.5-26.8,9.9-35.4s-5.1-9.3,0-14.4s0-17.2-8-14.4s-13.9-8.7-8-17.2
             s-1.7-27.8-10.7-17.2c-4,4.6-6,4.7-8,0s-11-9.3-16,0s9.4,14.6-2.7,20.1s-4.8,16.6,2.7,20.1s5.5,6.6,0,11.5s-5.3,17.2,5.3,17.2
-            s0,5.8-2.7,8.6s-5.5,7.3-2.8,13c0.7,1.4,6,5,10,8L819.5,474.9z" data-transition="M819.5,474.9c0,0,22.8-25.8,10.2-31.2c-6.2-2.7-8.8-8.7-0.2-10.7c9-2.1,9-15.6-4.5-17.1
+            s0,5.8-2.7,8.6s-5.5,7.3-2.8,13c0.7,1.4,6,5,10,8L819.5,474.9z" data-step-1="M819.5,474.9c0,0,22.8-25.8,10.2-31.2c-6.2-2.7-8.8-8.7-0.2-10.7c9-2.1,9-15.6-4.5-17.1
                 c-8.5-0.9-9.7-6.5-1-12.7c4.7-3.4,3.6-12.4-8.5-15c-5.3-1.2-10-6.5-7.8-12c2-5.2-1.5-16.5-13.8-7c-8.8,6.8-1.7,18.2-9.7,22.6
                 c-11.6,6.4-13.1,12.6-6.5,21c5.1,6.5,5.8,8.7,1,15.2c-4.4,5.9-3.8,11,5.3,17.2c3.4,2.3,0,5.8-2.7,8.6s-5.5,7.3-2.8,13
-                c0.7,1.4,6,5,10,8L819.5,474.9z" data-duration="4000"/>
-        <path style="fill:none;stroke:#E77A00;stroke-miterlimit:10;" d="M797.5,404.4c0,0,14.2,26.2,7.1,71.4" data-transition="M799.5,394.8c-6.2,34.2,16.8,55.8,5.1,81" data-duration="4000"/>
+                c0.7,1.4,6,5,10,8L819.5,474.9z" data-step-2="M819.5,474.9c0,0,22.8-25.8,10.2-31.2c-6.2-2.7-8.8-8.7-0.2-10.7c9-2.1,9-15.6-4.5-17.1
+                c-8.5-0.9-9.7-6.5-1-12.7c4.7-3.4,3.6-12.4-8.5-15c-5.3-1.2-10-6.5-7.8-12c2-5.2-1.5-16.5-13.8-7c-8.8,6.8-1.7,18.2-9.7,22.6
+                c-11.6,6.4-13.1,12.6-6.5,21c15.1,16.5,15.8,18.7,11,115.2c-4.4,5.9-3.8,11,5.3,17.2c3.4,2.3,0,5.8-2.7,8.6s-5.5,7.3-2.8,13
+                c0.7,1.4,6,5,10,8L819.5,474.9z"/>
+        <path id="center" style="fill:none;stroke:#AAAAAA;stroke-miterlimit:10;" d="M797.5,404.4c0,0,14.2,26.2,7.1,71.4" data-step="M799.5,394.8c-6.2,34.2,16.8,55.8,5.1,81"/>
         </svg>
     </div>
 
     <script type="text/javascript">
-        let svg = document.getElementById('svg'),
-            morpher = new Morpher(svg, {alternate: true});
-
-        morpher.setDuration(300)
-            .setEasing((t) => {return t;});
-
-        console.log(morpher);
+        let leaf = new Morpher(document.getElementById('leaf')),
+            center = new Morpher(document.getElementById('center')),
+            start = Date.now();
+        leaf.addSteps([leaf.path.getAttribute('data-step-1'), leaf.path.getAttribute('data-step-2')])
+            .setDuration(4000)
+            .play(start);
+        center.addStep(center.path.getAttribute('data-step'))
+            .setDuration(4000)
+            .play(start);
     </script>
 
 </body>
