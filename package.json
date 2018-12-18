@@ -1,0 +1,27 @@
+{
+  "name": "morpherjs",
+  "title": "Morpher",
+  "version": "0.0.1",
+  "description": "A lightweight JavaScript library for animating SVG shapes between several states",
+  "repository": "https://github.com/whitecube/morpher",
+  "license": "MIT",
+  "main": "dist/morpherjs.min.js",
+  "scripts": {
+    "dev": "NODE_ENV=development node_modules/webpack/bin/webpack.js --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
+    "watch": "NODE_ENV=production node_modules/webpack/bin/webpack.js --watch --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
+    "hot": "NODE_ENV=development webpack-dev-server --inline --hot --config=node_modules/laravel-mix/setup/webpack.config.js",
+    "production": "NODE_ENV=production node_modules/webpack/bin/webpack.js --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js"
+  },
+  "keywords": ["svg","animation","requestAnimationFrame","state","oscillator"],
+  "author": {
+    "name": "Whitecube",
+    "email": "hello@whitecube.be"
+  },
+  "bugs": {
+    "url": "https://github.com/whitecube/morpher/issues"
+  },
+  "homepage": "https://github.com/whitecube/morpher",
+  "dependencies": {
+    "laravel-mix": "^3.0.0"
+  }
+}
