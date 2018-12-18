@@ -25,7 +25,9 @@ class Morpher {
             // Whether the morpher should animate back to its initial state at the end of an iteration
             alternate: true,
             // The animation easing function (defaults to easeInOutQuad)
-            easing: (t) => { return t<.5 ? 2*t*t : -1+(4-2*t)*t; }
+            easing: (t) => { return t<.5 ? 2*t*t : -1+(4-2*t)*t; },
+            // The amount of decimals we should output in the interpolated SVG paths
+            decimals: 3
         };
     }
 
@@ -132,7 +134,8 @@ class Morpher {
     * Set current state values and compute path if necessary;
     */
     update(time) {
-        if(!this.segments) this.segments = this.getSegments();
+        if(this.precision === undefined) this.precision = Math.pow(10,this.config.decimals);
+        if(this.segments === undefined) this.segments = this.getSegments();
         time = this.getProgress(time);
         if(time === undefined) return;
         return this.getSegmentProgressInstructions(this.getSegmentProgress(time));
@@ -153,6 +156,7 @@ class Morpher {
         this.start = undefined;
         this.iteration = undefined;
         this.segment = undefined;
+        this.precision = undefined;
         this.isForward = undefined;
     }
 
@@ -399,7 +403,7 @@ class Morpher {
         let instruction = point.type;
         for (var i = 0; i < point.from.length; i++) {
             if(i) instruction += ',';
-            instruction += point.from[i] + (point.to[i] - point.from[i]) * progress;
+            instruction += Math.round((point.from[i] + (point.to[i] - point.from[i]) * progress) * this.precision) / this.precision;
         }
         return instruction;
     }
