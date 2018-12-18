@@ -126,7 +126,6 @@ class Morpher {
         this.isDone = true;
         this.reset();
         return this.isPlaying = false;
-
     }
 
     /**
@@ -136,14 +135,14 @@ class Morpher {
         if(!this.segments) this.segments = this.getSegments();
         time = this.getProgress(time);
         if(time === undefined) return;
-        return this.getSegmentProgressPoints(this.getSegmentProgress(time));
+        return this.getSegmentProgressInstructions(this.getSegmentProgress(time));
     }
 
     /**
-    * Set the path's new "d" attribute and request a new frame if necessary
+    * Set the path's new "d" attribute and request a new frame
     */
-    draw(points) {
-        // this.path.setAttribute('d', path);
+    draw(instructions) {
+        this.path.setAttribute('d', instructions.join(''));
         requestAnimationFrame(() => this.frame(Date.now()));
     }
 
@@ -181,8 +180,12 @@ class Morpher {
     /**
     * Get instructions array with interpolated coordinates for the current step's progress
     */
-    getSegmentProgressPoints(progress) {
-        console.log(this.segments[this.segment]);
+    getSegmentProgressInstructions(progress) {
+        let instructions = [];
+        for (var i = 0; i < this.segments[this.segment].length; i++) {
+            instructions.push(this.getSegmentPointProgressInstruction(this.segments[this.segment][i], progress));
+        }
+        return instructions;
     }
 
     /**
@@ -386,6 +389,19 @@ class Morpher {
         point.from = this['parseTo' + point.type](from, previousFrom);
         point.to = this['parseTo' + point.type](to, previousTo);
         return point;
+    }
+
+    /**
+    * Get instruction string with interpolated coordinates for current progress
+    */
+    getSegmentPointProgressInstruction(point, progress) {
+        if(point.type == 'Z') return 'z';
+        let instruction = point.type;
+        for (var i = 0; i < point.from.length; i++) {
+            if(i) instruction += ',';
+            instruction += point.from[i] + (point.to[i] - point.from[i]) * progress;
+        }
+        return instruction;
     }
 
     /**
