@@ -169,7 +169,6 @@ class Morpher {
         this.isForward = this.config.alternate ? (this.iteration % 2 === 0) : true;
         time = (time - this.start) % this.config.duration;
         time = this.isForward ? (time / this.config.duration) : ((this.config.duration - time) / this.config.duration);
-        time = this.config.easing(time);
         this.segment = Math.floor(time * this.segments.length);
         return time;
     }
@@ -178,7 +177,7 @@ class Morpher {
     * Get progress in current step segment
     */
     getSegmentProgress(progress) {
-        return (progress - (this.segment / this.segments.length)) * this.segments.length;
+        return this.config.easing((progress - (this.segment / this.segments.length)) * this.segments.length);
     }
 
     /**
