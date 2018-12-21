@@ -6,7 +6,11 @@ A small dependency-free javascript tool for animating simple SVG paths.
 
 ## Installation
 
-Download the latest release of this repository and include it in your project.
+Download the latest release of this repository and include it in your project or install it with npm:
+
+```
+npm i morpherjs
+```
 
 ## Usage
 
