@@ -17,7 +17,7 @@ First, you'll need to properly prepare your SVG files. Each animation step shoul
 <path id="step2" d="M645.71,2580.98c137.35-323.68,305.53-194.95,516.37-105.49c210.84,89.46,345.12-55.32,147.53-239.74c-167.44-156.27-236.75-230.53-142.71-344.81c94.05-114.28,450.95,220.99,624.83-34.56c243.91-358.47-157.55-555.89-439.97-679.71c-131.19-57.52-59.62-274.23,121.19-526.91s48.98-432.06-55.63-501.09c-202.03-133.32-501.48,57.05-624.08,543.25c-76.4,302.97-421.52,260.82-376.74-23.71C472.55,312.12,72.62,432.74,76.65,728.8c4.03,296.06,528.52,649.46,250.28,898.37c-250.31,223.93-197.59,495.29,61.35,511.67c196.8,12.45,34.71,347.63,34.71,347.63L645.71,2580.98z" />
 ```
 
-Also beware that the points should be defined in the same order in all steps, otherwize you'll get weird transitions between each SVG state.
+Also beware that the points should be defined in the same order in all steps, otherwise you'll get weird transitions between each SVG state.
 
 The library only needs a single `path` element for initialization:
 
@@ -65,7 +65,7 @@ morpher.addStep(step2);
 // or morpher.addSteps([step2, step3, step4]);
 ```
 
-Once the animation is fully configurated, you can control its state thanks to the `play()`, `pause()` and `stop()` methods. If necessary, you can also provide a timestamp to the `play()` call. This way you can sync the animation with whatever is useful in your project:
+Once the animation is fully configured, you can control its state thanks to the `play()`, `pause()` and `stop()` methods. If necessary, you can also provide a timestamp to the `play()` call. This way you can sync the animation with whatever is useful in your project:
 
 ```javascript
 let morpher1 = new Morpher(document.getElementById('morpher1')),
@@ -83,7 +83,7 @@ setTimeout(function() {
 
 ## API
 
-Here's a full list of available methods. Since this is an early version of the tool, some changes could be made to these methods in the future. Please le us know in the issues if there are use cases you'd love to have in this library.
+Here's a full list of available methods. Since this is an early version of the tool, some changes could be made to these methods in the future. Please let us know in the issues if there are use cases you'd love to have in this library.
 
 ### `new Morpher(pathElement, configuration = {})`
 
@@ -99,7 +99,7 @@ Create a new morpher instance.
 
 ### `morpher.setDuration(int)`
 
-> Update the morpher's cycle animation duration. If no value is given, the morpher's default duration will be used.
+> Update the morpher's cycle animation duration. If no value is given, the morpher's default duration will be used (500).
 
 ### `morpher.setIterations(int)`
 
@@ -154,3 +154,9 @@ This package is still in an early stage and has not yet been tested in all brows
 Feel free to suggest changes, ask for new features or fix bugs yourself. We're sure there are still a lot of improvements that could be made and we would be very happy to merge useful pull requests.
 
 Thanks!
+
+
+## Made with ❤️ for open source
+At [whitecube](https://www.whitecube.be) we use a lot of open source software as part of our daily work.  
+So when we have an opportunity to give something back, we're super excited!  
+We hope you will enjoy this small contribution from us and would love to [hear from you](mailto:hello@whitecube.be) if you find it useful in your projects.
